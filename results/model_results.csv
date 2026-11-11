@@ -1,0 +1,8 @@
+model,outcome_terms_removed,cv_AUPRC,threshold,best_params,AUROC,AUPRC,balanced_accuracy,precision,recall,F1,AUROC_ci,AUPRC_ci,F1_ci
+Majority class (baseline),True,0.3627,0.5,"{""clf__strategy"": ""prior""}",0.5,0.364,0.5,0.0,0.0,0.0,"[0.5, 0.5]","[0.304, 0.428]","[0.0, 0.0]"
+Logistic regression (class-weighted),True,0.7557,0.4351,"{""clf__C"": 1.0}",0.8958,0.8755,0.7965,0.6789,0.8132,0.74,"[0.85, 0.932]","[0.819, 0.919]","[0.667, 0.802]"
+Random forest (class-weighted),True,0.8026,0.4337,"{""clf__max_depth"": 20, ""clf__min_samples_leaf"": 1, ""clf__n_estimators"": 300}",0.8943,0.8926,0.8083,0.732,0.7802,0.7553,"[0.84, 0.94]","[0.839, 0.935]","[0.684, 0.817]"
+Random forest + SMOTE,True,0.8035,0.4422,"{""clf__max_depth"": null, ""clf__min_samples_leaf"": 3, ""clf__n_estimators"": 300}",0.8929,0.8929,0.8178,0.7553,0.7802,0.7676,"[0.84, 0.937]","[0.84, 0.934]","[0.693, 0.833]"
+Logistic regression (class-weighted),False,0.8053,0.4998,"{""clf__C"": 1.0}",0.9185,0.9078,0.8374,0.7708,0.8132,0.7914,"[0.875, 0.953]","[0.858, 0.944]","[0.721, 0.85]"
+Random forest (class-weighted),False,0.8175,0.4121,"{""clf__max_depth"": 20, ""clf__min_samples_leaf"": 1, ""clf__n_estimators"": 300}",0.8929,0.89,0.8029,0.7292,0.7692,0.7487,"[0.84, 0.937]","[0.836, 0.933]","[0.677, 0.815]"
+Random forest + SMOTE,False,0.8099,0.4429,"{""clf__max_depth"": 20, ""clf__min_samples_leaf"": 1, ""clf__n_estimators"": 300}",0.8885,0.8869,0.8288,0.8118,0.7582,0.7841,"[0.835, 0.933]","[0.834, 0.931]","[0.71, 0.847]"
