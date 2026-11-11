@@ -65,3 +65,13 @@ def test_outcome_terms_removed_and_smote_only_inside_pipeline():
     # SMOTE is a sampler in the pipeline: it is applied in fit only, so predict returns one row per report
     assert pipe.predict_proba(X).shape == (len(df), 2)
     assert "smote" in pipe.named_steps
+
+
+def test_deduplication_and_trim():
+    recs = [report("1", "1", ["Drug A"], ["Nausea"]), report("2", "1", ["DRUG A"], ["nausea"]),
+            report("3", "1", ["Drug A"], ["Nausea"], age="41")]
+    df, removed = pvdata.deduplicate(pvdata.parse_reports(recs))
+    assert removed == 1 and df.report_id.tolist() == ["1", "3"]
+    t = pvdata.trim({**recs[0], "patient": {**recs[0]["patient"], "summary": {"x": 1}}, "companynumb": "C"})
+    assert "companynumb" not in t and "summary" not in t["patient"]
+    assert pvdata.parse_reports([t]).equals(pvdata.parse_reports([recs[0]]))

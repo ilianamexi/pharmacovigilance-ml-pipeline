@@ -30,35 +30,51 @@ SERIOUSNESS_FLAGS = ["seriousnessdeath", "seriousnesslifethreatening", "seriousn
 
 
 # ---------------------------------------------------------------- download
-def fetch_reports(start: str, end: str, per_month: int, out: Path, api_key: str | None = None,
-                  pause: float = 0.3) -> int:
-    """Download up to ``per_month`` reports for every calendar month between start and end (YYYYMMDD).
+def trim(rep: dict) -> dict:
+    """Keep only the fields this project uses, so the stored sample stays small."""
+    patient = rep.get("patient") or {}
+    keep_drug = lambda d: {"drugcharacterization": d.get("drugcharacterization"),
+                           "medicinalproduct": d.get("medicinalproduct"),
+                           "activesubstance": d.get("activesubstance"),
+                           "openfda": {"generic_name": (d.get("openfda") or {}).get("generic_name")}}
+    return {
+        **{k: rep.get(k) for k in ["safetyreportid", "serious", "receivedate", "occurcountry", *SERIOUSNESS_FLAGS]},
+        "primarysource": {"qualification": (rep.get("primarysource") or {}).get("qualification")},
+        "patient": {**{k: patient.get(k) for k in ["patientonsetage", "patientonsetageunit", "patientsex",
+                                                   "patientweight"]},
+                    "drug": [keep_drug(d) for d in patient.get("drug") or []],
+                    "reaction": [{"reactionmeddrapt": r.get("reactionmeddrapt")} for r in patient.get("reaction") or []]},
+    }
 
-    Spreading the requests over months gives a sample that is less dominated by a few days than one
-    query sorted by the API's default order. The API key, if any, is read from the caller (never stored).
+
+def fetch_reports(start: str, end: str, per_day: int, out: Path, api_key: str | None = None,
+                  pause: float = 0.3) -> int:
+    """Download up to ``per_day`` reports received on each day between start and end (YYYYMMDD).
+
+    One small request per day spreads the sample over the whole period. A single large query would
+    return reports in the API's default order, which in practice come from only a few days.
+    The API key, if given, is passed by the caller from the environment and never stored.
     """
     import requests
 
-    months = pd.date_range(pd.to_datetime(start), pd.to_datetime(end), freq="MS")
     out.parent.mkdir(parents=True, exist_ok=True)
     n = 0
     with gzip.open(out, "wt", encoding="utf-8") as fh:
-        for m in months:
-            last = (m + pd.offsets.MonthEnd(0)).strftime("%Y%m%d")
-            params = {"search": f"receivedate:[{m.strftime('%Y%m%d')} TO {last}]", "limit": per_month}
+        for day in pd.date_range(pd.to_datetime(start), pd.to_datetime(end), freq="D"):
+            params = {"search": f"receivedate:{day:%Y%m%d}", "limit": per_day}
             if api_key:
                 params["api_key"] = api_key
-            for attempt in range(3):
+            for attempt in range(4):
                 r = requests.get(API_URL, params=params, timeout=60)
-                if r.status_code == 200:
+                if r.status_code in (200, 404):  # 404 = no reports that day (e.g. weekends)
                     break
-                time.sleep(2 * (attempt + 1))
-            r.raise_for_status()
-            results = r.json().get("results", [])
+                time.sleep(3 * (attempt + 1))
+            results = r.json().get("results", []) if r.status_code == 200 else []
+            if r.status_code not in (200, 404):
+                print(f"{day:%Y-%m-%d}: HTTP {r.status_code}, skipped", flush=True)
             for rep in results:
-                fh.write(json.dumps(rep) + "\n")
+                fh.write(json.dumps(trim(rep)) + "\n")
             n += len(results)
-            print(f"{m:%Y-%m}: {len(results)} reports", flush=True)
             time.sleep(pause)
     return n
 
@@ -163,6 +179,15 @@ def parse_reports(records: list[dict]) -> pd.DataFrame:
         rows[rid] = row  # duplicates of the same report id: keep the last occurrence
     df = pd.DataFrame(list(rows.values()))
     return df.dropna(subset=["serious"]).astype({"serious": int}).reset_index(drop=True)
+
+
+def deduplicate(df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """Remove probable duplicate cases: different report ids with the same suspect drugs, reactions,
+    age, sex and country (a simple version of FAERS case deduplication). Returns (df, n_removed)."""
+    key = df.apply(lambda r: (tuple(r.suspect_drugs), tuple(r.reactions),
+                              None if pd.isna(r.age_years) else round(r.age_years, 1), r.sex, r.country), axis=1)
+    keep = ~key.duplicated()
+    return df[keep].reset_index(drop=True), int((~keep).sum())
 
 
 def api_key_from_env() -> str | None:

@@ -2,7 +2,7 @@
 seriousness prediction.
 
 Usage:
-    python run_pipeline.py fetch --start 20230101 --end 20231231 --per-month 500   # optional download
+    python run_pipeline.py fetch --start 20230101 --end 20231231 --per-day 20   # optional download
     python run_pipeline.py run                      # uses data/faers_reports.jsonl.gz if present,
                                                     # otherwise the bundled 1,000-report sample
     python run_pipeline.py run --data data/openfda_sample_2023.csv
@@ -33,7 +33,7 @@ LEGACY_CSV = ROOT / "data" / "openfda_sample_2023.csv"
 
 
 def fetch(args) -> None:
-    n = pvdata.fetch_reports(args.start, args.end, args.per_month, Path(args.out), pvdata.api_key_from_env())
+    n = pvdata.fetch_reports(args.start, args.end, args.per_day, Path(args.out), pvdata.api_key_from_env())
     print(f"Saved {n} reports to {args.out}")
 
 
@@ -86,10 +86,13 @@ def run(args) -> None:
     figures.mkdir(exist_ok=True)
 
     df = pvdata.parse_reports(pvdata.load_raw(path))
+    n_unique_ids = len(df)
+    df, n_dupes = pvdata.deduplicate(df)
     dates = pd.to_datetime(df["receivedate"], format="%Y%m%d", errors="coerce")
-    print(f"{len(df)} unique reports from {path.name} ({dates.min():%Y-%m-%d} to {dates.max():%Y-%m-%d}), "
+    print(f"{n_unique_ids} reports, {n_dupes} probable duplicate cases removed -> {len(df)} reports from {path.name} ({dates.min():%Y-%m-%d} to {dates.max():%Y-%m-%d}), "
           f"{df.serious.mean():.1%} serious")
-    summary = {"data_file": path.name, "n_reports": len(df), "serious_rate": round(float(df.serious.mean()), 4),
+    summary = {"data_file": path.name, "n_report_ids": n_unique_ids, "duplicates_removed": n_dupes,
+               "n_reports": len(df), "days_covered": int(dates.dt.normalize().nunique()), "serious_rate": round(float(df.serious.mean()), 4),
                "date_range": [f"{dates.min():%Y-%m-%d}", f"{dates.max():%Y-%m-%d}"],
                "age_missing": round(float(df.age_years.isna().mean()), 4),
                "reports_without_suspect_drug": int((df.n_drugs == 0).sum())}
@@ -139,7 +142,8 @@ def write_markdown(summary: dict, res: pd.DataFrame, sig: pd.DataFrame, path: Pa
     def fmt(r, k):
         lo, hi = r[f"{k}_ci"]
         return f"{r[k]:.3f} [{lo:.3f}–{hi:.3f}]"
-    lines = [f"Data: {summary['n_reports']} unique reports ({summary['date_range'][0]} to {summary['date_range'][1]}), "
+    lines = [f"Data: {summary['n_reports']} reports after removing {summary['duplicates_removed']} probable duplicates, "
+             f"received on {summary['days_covered']} days ({summary['date_range'][0]} to {summary['date_range'][1]}), "
              f"{summary['serious_rate']:.1%} serious. Train {summary['split']['train']} / test {summary['split']['test']}.", ""]
     for flag, title in [(True, "Outcome-restating reaction terms removed (main analysis)"),
                         (False, "All reaction terms kept (ablation)")]:
@@ -165,7 +169,7 @@ def main() -> None:
     f = sub.add_parser("fetch")
     f.add_argument("--start", default="20230101")
     f.add_argument("--end", default="20231231")
-    f.add_argument("--per-month", type=int, default=500)
+    f.add_argument("--per-day", type=int, default=20)
     f.add_argument("--out", default=str(DEFAULT_JSONL))
     r = sub.add_parser("run")
     r.add_argument("--data", default=None)

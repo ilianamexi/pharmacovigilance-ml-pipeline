@@ -20,7 +20,7 @@ jobs:
       - run: python -m pytest -q tests
 
   analysis:
-    # Downloads a 12-month FAERS sample and runs the full analysis: start it from the Actions tab,
+    # Downloads a FAERS sample covering every day of 2023 and runs the full analysis: start it from the Actions tab,
     # or put [run-analysis] in the commit message. Results are committed back to the branch.
     needs: tests
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[run-analysis]')
@@ -32,10 +32,10 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
-      - name: Download FAERS reports (500 per month, 2023)
+      - name: Download FAERS reports (20 per day, 2023)
         env:
           OPENFDA_API_KEY: ${{ secrets.OPENFDA_API_KEY }}
-        run: python run_pipeline.py fetch --start 20230101 --end 20231231 --per-month 500
+        run: python run_pipeline.py fetch --start 20230101 --end 20231231 --per-day 20
       - run: python -W ignore run_pipeline.py run
       - name: Commit data and results to the branch
         run: |

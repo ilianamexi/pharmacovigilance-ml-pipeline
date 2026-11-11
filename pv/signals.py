@@ -23,11 +23,13 @@ import numpy as np
 import pandas as pd
 
 # MedDRA terms about product quality, device handling or the use process rather than a clinical
-# reaction of the patient. They are excluded from signal detection by default.
+# reaction of the patient, plus outcomes (death, hospitalisation) and the uninformative 'Ill-defined
+# disorder'. They are excluded from signal detection by default.
 NON_CLINICAL = re.compile(r"^(Product |Intercepted |Device |Drug ineffective|Off label use|Intentional product|"
                           r"Inappropriate schedule|Wrong |Incorrect |Drug dose omission|Expired product|"
                           r"No adverse event|Therapy interrupted|Treatment noncompliance|Drug administered|"
-                          r"Accidental exposure|Exposure via|Circumstance or information)", re.I)
+                          r"Accidental exposure|Exposure via|Circumstance or information|Syringe |Needle |Ill-defined disorder|"
+                          r"Death$|Sudden death$|Hospitalisation$)", re.I)
 
 
 def contingency(df: pd.DataFrame, drug_col: str = "suspect_drugs") -> pd.DataFrame:
