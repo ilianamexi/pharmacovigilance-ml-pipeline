@@ -17,22 +17,22 @@ Data: 6964 reports after removing 331 probable duplicates, received on 365 days 
 | Random forest (class-weighted) | 0.940 [0.929–0.949] | 0.956 [0.943–0.966] | 0.885 | 0.901 | 0.893 | 0.865 |
 | Random forest + SMOTE | 0.940 [0.928–0.949] | 0.953 [0.939–0.964] | 0.895 | 0.895 | 0.895 | 0.872 |
 
-**Signals** (1800 of 2103 drug–reaction pairs with ≥ 3 reports)
+**Signals**: 1800 of 2103 drug–reaction pairs with ≥ 3 reports meet the Evans criteria. The 15 with the most reports (≥ 10):
 
 | Drug | Reaction | Reports | PRR | ROR [95% CI] | χ² |
 |---|---|---|---|---|---|
-| FELODIPINE | Cardiospasm | 3 | 12183.5 | 97461.0 [1685.1–5636991.5] | 4835.3 |
-| FELODIPINE | Palmoplantar keratoderma | 3 | 12183.5 | 97461.0 [1685.1–5636991.5] | 4835.3 |
-| FENTANYL\FENTANYL CITRATE | Drug use disorder | 3 | 12183.5 | 97461.0 [1685.1–5636991.5] | 4835.3 |
-| ISOSORBIDE DINITRATE | Cardiospasm | 3 | 12183.5 | 97461.0 [1685.1–5636991.5] | 4835.3 |
-| ISOSORBIDE DINITRATE | Palmoplantar keratoderma | 3 | 12183.5 | 97461.0 [1685.1–5636991.5] | 4835.3 |
-| AXICABTAGENE CILOLEUCEL | Immune effector cell-associated neurotoxicity syndrome | 4 | 4176.6 | 41757.0 [1492.5–1168305.1] | 4264.0 |
-| HUMAN C1-ESTERASE INHIBITOR | Hereditary angioedema | 4 | 10440.0 | 41757.0 [1492.5–1168305.1] | 4264.0 |
-| FELODIPINE | Atrial tachycardia | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| FELODIPINE | Carotid artery occlusion | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| FELODIPINE | Facial pain | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| FELODIPINE | Sleep terror | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| FELODIPINE | Tension headache | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| ISOSORBIDE DINITRATE | Atrial tachycardia | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| ISOSORBIDE DINITRATE | Carotid artery occlusion | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
-| ISOSORBIDE DINITRATE | Facial pain | 3 | 4061.2 | 32482.3 [1119.5–942510.5] | 3625.7 |
+| DUPILUMAB | Injection site pain | 47 | 10.4 | 11.7 [8.0–17.1] | 244.3 |
+| DUPILUMAB | Pruritus | 43 | 7.1 | 7.8 [5.4–11.4] | 156.2 |
+| TROFINETIDE | Diarrhoea | 42 | 25.2 | 110.0 [57.1–212.0] | 826.4 |
+| ACETAMINOPHEN\OXYCODONE HYDROCHLORIDE | Dependence | 41 | 405.0 | 2245.2 [920.3–5477.9] | 4135.2 |
+| ACETAMINOPHEN\HYDROCODONE BITARTRATE | Dependence | 31 | 263.3 | 2973.4 [851.0–10389.0] | 3447.5 |
+| DUPILUMAB | Eczema | 31 | 103.1 | 111.8 [43.2–289.2] | 422.6 |
+| PIMAVANSERIN TARTRATE | Hallucination | 28 | 73.0 | 92.6 [50.5–169.7] | 804.0 |
+| DUPILUMAB | Dry skin | 28 | 19.4 | 20.8 [11.9–36.3] | 218.3 |
+| SODIUM CITRATE | Paraesthesia | 27 | 162.0 | 705.3 [298.5–1666.5] | 2307.5 |
+| ADALIMUMAB | Pain | 26 | 3.1 | 3.3 [2.2–5.1] | 31.5 |
+| RISANKIZUMAB-RZAA | Psoriasis | 24 | 16.2 | 18.3 [11.0–30.5] | 226.0 |
+| TROFINETIDE | Underdose | 23 | 117.7 | 204.3 [104.8–398.2] | 1335.0 |
+| TROFINETIDE | Vomiting | 23 | 22.6 | 38.7 [22.0–68.2] | 394.6 |
+| DUPILUMAB | Rash | 22 | 3.1 | 3.3 [2.0–5.2] | 25.4 |
+| DUPILUMAB | Arthralgia | 21 | 2.2 | 2.3 [1.4–3.6] | 11.3 |

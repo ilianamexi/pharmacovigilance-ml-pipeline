@@ -3,9 +3,8 @@ seriousness prediction.
 
 Usage:
     python run_pipeline.py fetch --start 20230101 --end 20231231 --per-day 20   # optional download
-    python run_pipeline.py run                      # uses data/faers_reports.jsonl.gz if present,
-                                                    # otherwise the bundled 1,000-report sample
-    python run_pipeline.py run --data data/openfda_sample_2023.csv
+    python run_pipeline.py run                      # uses the bundled sample data/faers_reports.jsonl.gz
+    python run_pipeline.py run --data my_reports.jsonl.gz
 
 The openFDA API key, if you have one, is read from the OPENFDA_API_KEY environment variable.
 """
@@ -29,7 +28,6 @@ from pv.signals import detect_signals
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_JSONL = ROOT / "data" / "faers_reports.jsonl.gz"
-LEGACY_CSV = ROOT / "data" / "openfda_sample_2023.csv"
 
 
 def fetch(args) -> None:
@@ -61,18 +59,25 @@ def eda_figures(df: pd.DataFrame, out: Path) -> None:
     plt.close(fig)
 
 
-def signal_figure(sig: pd.DataFrame, out: Path, top: int = 15) -> None:
-    s = sig[sig.signal].head(top)[::-1]
+def top_signals(sig: pd.DataFrame, min_reports: int = 10, top: int = 15) -> pd.DataFrame:
+    """Signals with the most reports. Pairs seen in only 3-9 reports get huge, unstable ratios in a
+    sample of this size, so the summary shows the better-supported ones."""
+    return sig[sig.signal & (sig.a >= min_reports)].sort_values("a", ascending=False).head(top)
+
+
+def signal_figure(sig: pd.DataFrame, out: Path) -> None:
+    s = top_signals(sig)[::-1]
     if s.empty:
         return
-    fig, ax = plt.subplots(figsize=(8, 0.38 * len(s) + 1.2))
+    fig, ax = plt.subplots(figsize=(10, 0.4 * len(s) + 1.4))
     y = np.arange(len(s))
     ax.errorbar(s["ROR"], y, xerr=[s["ROR"] - s["ROR_low"], s["ROR_high"] - s["ROR"]], fmt="o", color="#C44E52",
                 capsize=3)
-    ax.set_yticks(y, [f"{d} – {r} (n={a})" for d, r, a in zip(s.drug, s.reaction, s.a)], fontsize=8)
+    ax.set_yticks(y, [f"{d.title()} – {r} (n={a})" for d, r, a in zip(s.drug, s.reaction, s.a)], fontsize=8)
     ax.set_xscale("log")
     ax.axvline(1, color="grey", lw=0.8)
-    ax.set(xlabel="Reporting odds ratio (95% CI, log scale)", title="Disproportionality signals (Evans criteria)")
+    ax.set_xlabel("Reporting odds ratio (95% CI, log scale)")
+    ax.set_title("Signals with the most reports (Evans criteria, n ≥ 10)", loc="left")
     fig.tight_layout()
     fig.savefig(out / "signals.png", dpi=140)
     plt.close(fig)
@@ -80,7 +85,9 @@ def signal_figure(sig: pd.DataFrame, out: Path, top: int = 15) -> None:
 
 # ---------------------------------------------------------------- main analysis
 def run(args) -> None:
-    path = Path(args.data) if args.data else (DEFAULT_JSONL if DEFAULT_JSONL.exists() else LEGACY_CSV)
+    path = Path(args.data) if args.data else DEFAULT_JSONL
+    if not path.exists():
+        raise SystemExit(f"{path} not found: run `python run_pipeline.py fetch` first")
     results, figures = ROOT / "results", ROOT / "figures"
     results.mkdir(exist_ok=True)
     figures.mkdir(exist_ok=True)
@@ -153,8 +160,9 @@ def write_markdown(summary: dict, res: pd.DataFrame, sig: pd.DataFrame, path: Pa
             lines.append(f"| {r.model} | {fmt(r, 'AUROC')} | {fmt(r, 'AUPRC')} | {r.precision:.3f} | {r.recall:.3f} | "
                          f"{r.F1:.3f} | {r.balanced_accuracy:.3f} |")
         lines.append("")
-    top = sig[sig.signal].head(15)
-    lines += [f"**Signals** ({int(sig.signal.sum())} of {len(sig)} drug–reaction pairs with ≥ 3 reports)", "",
+    top = top_signals(sig)
+    lines += [f"**Signals**: {int(sig.signal.sum())} of {len(sig)} drug–reaction pairs with ≥ 3 reports meet the "
+              f"Evans criteria. The {len(top)} with the most reports (≥ 10):", "",
               "| Drug | Reaction | Reports | PRR | ROR [95% CI] | χ² |", "|---|---|---|---|---|---|"]
     for _, r in top.iterrows():
         lines.append(f"| {r.drug} | {r.reaction} | {int(r.a)} | {r.PRR:.1f} | {r.ROR:.1f} [{r.ROR_low:.1f}–{r.ROR_high:.1f}] "
