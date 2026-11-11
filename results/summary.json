@@ -1,0 +1,199 @@
+{
+  "data_file": "faers_reports.jsonl.gz",
+  "n_report_ids": 7295,
+  "duplicates_removed": 331,
+  "n_reports": 6964,
+  "days_covered": 365,
+  "serious_rate": 0.593,
+  "date_range": [
+    "2023-01-01",
+    "2023-12-31"
+  ],
+  "age_missing": 0.4431,
+  "reports_without_suspect_drug": 0,
+  "signals": {
+    "pairs_with_3plus_reports": 2103,
+    "signals": 1800
+  },
+  "split": {
+    "train": 5223,
+    "test": 1741
+  },
+  "models": [
+    {
+      "model": "Majority class (baseline)",
+      "outcome_terms_removed": true,
+      "cv_AUPRC": 0.5931,
+      "threshold": 0.5,
+      "best_params": "{\"clf__strategy\": \"prior\"}",
+      "AUROC": 0.5,
+      "AUPRC": 0.5928,
+      "balanced_accuracy": 0.5,
+      "precision": 0.5928,
+      "recall": 1.0,
+      "F1": 0.7443,
+      "AUROC_ci": [
+        0.5,
+        0.5
+      ],
+      "AUPRC_ci": [
+        0.572,
+        0.617
+      ],
+      "F1_ci": [
+        0.727,
+        0.763
+      ]
+    },
+    {
+      "model": "Logistic regression (class-weighted)",
+      "outcome_terms_removed": true,
+      "cv_AUPRC": 0.9628,
+      "threshold": 0.381,
+      "best_params": "{\"clf__C\": 1.0}",
+      "AUROC": 0.9466,
+      "AUPRC": 0.9654,
+      "balanced_accuracy": 0.8658,
+      "precision": 0.8913,
+      "recall": 0.8895,
+      "F1": 0.8904,
+      "AUROC_ci": [
+        0.936,
+        0.955
+      ],
+      "AUPRC_ci": [
+        0.957,
+        0.972
+      ],
+      "F1_ci": [
+        0.875,
+        0.905
+      ]
+    },
+    {
+      "model": "Random forest (class-weighted)",
+      "outcome_terms_removed": true,
+      "cv_AUPRC": 0.9528,
+      "threshold": 0.4367,
+      "best_params": "{\"clf__max_depth\": null, \"clf__min_samples_leaf\": 1, \"clf__n_estimators\": 300}",
+      "AUROC": 0.9377,
+      "AUPRC": 0.9522,
+      "balanced_accuracy": 0.8609,
+      "precision": 0.8752,
+      "recall": 0.9109,
+      "F1": 0.8927,
+      "AUROC_ci": [
+        0.926,
+        0.947
+      ],
+      "AUPRC_ci": [
+        0.937,
+        0.963
+      ],
+      "F1_ci": [
+        0.878,
+        0.906
+      ]
+    },
+    {
+      "model": "Random forest + SMOTE",
+      "outcome_terms_removed": true,
+      "cv_AUPRC": 0.9522,
+      "threshold": 0.4917,
+      "best_params": "{\"clf__max_depth\": null, \"clf__min_samples_leaf\": 1, \"clf__n_estimators\": 300}",
+      "AUROC": 0.9366,
+      "AUPRC": 0.9505,
+      "balanced_accuracy": 0.8641,
+      "precision": 0.8916,
+      "recall": 0.8847,
+      "F1": 0.8881,
+      "AUROC_ci": [
+        0.924,
+        0.946
+      ],
+      "AUPRC_ci": [
+        0.935,
+        0.963
+      ],
+      "F1_ci": [
+        0.872,
+        0.902
+      ]
+    },
+    {
+      "model": "Logistic regression (class-weighted)",
+      "outcome_terms_removed": false,
+      "cv_AUPRC": 0.9707,
+      "threshold": 0.3362,
+      "best_params": "{\"clf__C\": 1.0}",
+      "AUROC": 0.9562,
+      "AUPRC": 0.9708,
+      "balanced_accuracy": 0.8732,
+      "precision": 0.8887,
+      "recall": 0.9128,
+      "F1": 0.9006,
+      "AUROC_ci": [
+        0.947,
+        0.964
+      ],
+      "AUPRC_ci": [
+        0.962,
+        0.977
+      ],
+      "F1_ci": [
+        0.887,
+        0.913
+      ]
+    },
+    {
+      "model": "Random forest (class-weighted)",
+      "outcome_terms_removed": false,
+      "cv_AUPRC": 0.954,
+      "threshold": 0.4798,
+      "best_params": "{\"clf__max_depth\": null, \"clf__min_samples_leaf\": 1, \"clf__n_estimators\": 300}",
+      "AUROC": 0.9399,
+      "AUPRC": 0.956,
+      "balanced_accuracy": 0.8652,
+      "precision": 0.8849,
+      "recall": 0.9012,
+      "F1": 0.8929,
+      "AUROC_ci": [
+        0.929,
+        0.949
+      ],
+      "AUPRC_ci": [
+        0.943,
+        0.966
+      ],
+      "F1_ci": [
+        0.878,
+        0.906
+      ]
+    },
+    {
+      "model": "Random forest + SMOTE",
+      "outcome_terms_removed": false,
+      "cv_AUPRC": 0.9538,
+      "threshold": 0.4906,
+      "best_params": "{\"clf__max_depth\": null, \"clf__min_samples_leaf\": 1, \"clf__n_estimators\": 300}",
+      "AUROC": 0.9395,
+      "AUPRC": 0.9528,
+      "balanced_accuracy": 0.8715,
+      "precision": 0.8953,
+      "recall": 0.8953,
+      "F1": 0.8953,
+      "AUROC_ci": [
+        0.928,
+        0.949
+      ],
+      "AUPRC_ci": [
+        0.939,
+        0.964
+      ],
+      "F1_ci": [
+        0.88,
+        0.909
+      ]
+    }
+  ]
+}
